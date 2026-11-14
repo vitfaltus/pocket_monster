@@ -6,10 +6,9 @@
 
 class InputHandler
 {
-  ButtonHandler* buttonHandler;
+  ButtonHandler buttonHandler;
   PotentiometerHandler potentiometerHandler;
   public:
-  InputHandler(ButtonHandler* buttonHandler);
 
   enum InputAction
   {

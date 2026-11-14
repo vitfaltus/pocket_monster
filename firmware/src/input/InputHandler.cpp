@@ -1,14 +1,10 @@
 #include "input/InputHandler.hpp"
 
-
-InputHandler::InputHandler(ButtonHandler* buttonHandler)
-{
-  this->buttonHandler = buttonHandler;
-}
+#include "config.hpp"
 
 InputHandler::InputAction InputHandler::getInput()
 {
-  const auto buttonInput = buttonHandler->checkButtons();
+  const auto buttonInput = buttonHandler.checkButtons();
   const auto scrollInput = potentiometerHandler.getMovement();
 
   if (scrollInput == PotentiometerHandler::None && buttonInput == ButtonHandler::None)

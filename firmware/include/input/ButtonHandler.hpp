@@ -9,6 +9,7 @@ public:
   ButtonHandler(uint16_t NoPressValue, uint16_t LeftAnalogValue,
       uint16_t MiddleAnalogValue, uint16_t RightAnalogValue,
       uint16_t ShortPressThreshold, uint16_t LongPressThreshold);
+  ButtonHandler();
 
   enum ButtonPress
   {

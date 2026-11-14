@@ -21,6 +21,17 @@ ButtonHandler::ButtonHandler(const uint16_t NoPressValue, const uint16_t LeftAna
     pinMode(config::PinConfig::BUTTON_PANEL, INPUT);
 }
 
+ButtonHandler::ButtonHandler()
+{
+  this->NoPressValue = config::ButtonInputVals::NoPressValue;
+  this->LeftAnalogValue = config::ButtonInputVals::LeftAnalogValue;
+  this->MiddleAnalogValue = config::ButtonInputVals::MiddleAnalogValue;
+  this->RightAnalogValue = config::ButtonInputVals::RightAnalogValue;
+
+  this->ShortPressThreshold = config::ButtonInputVals::ShortPressThreshold;
+  this->LongPressThreshold = config::ButtonInputVals::LongPressThreshold;
+}
+
 ButtonHandler::ButtonPress ButtonHandler::checkButtons()
 {
 
