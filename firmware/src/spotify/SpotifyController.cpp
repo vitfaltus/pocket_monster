@@ -47,29 +47,35 @@ void SpotifyController::threadLoop()
     default:
       ;
     }
+    vTaskDelay(50*portTICK_PERIOD_MS);
+
   }
 
 }
 
 void SpotifyController::sendPlay(const bool play)
 {
-  if (play) sp.start_a_users_playback();
-  else  sp.pause_playback();
+  Serial.print("Play/pause command sent, status code: ");
+  if (play) Serial.println(sp.start_a_users_playback().status_code);
+  else  Serial.println(sp.pause_playback().status_code);
 }
 
 void SpotifyController::sendPlayNext()
 {
-  sp.skip_to_next();
+  Serial.print("Next command sent, status code: ");
+  Serial.println(sp.skip_to_next().status_code);
 }
 
 void SpotifyController::sendPlayPrevious()
 {
-  sp.skip_to_previous();
+  Serial.print("Prev command sent, status code: ");
+  Serial.println(sp.skip_to_previous().status_code);
 }
 
 void SpotifyController::sendVolume()
 {
-  sp.set_volume(volume);
+  Serial.print("Vol command sent, status code: ");
+  Serial.println(sp.set_volume(volume).status_code);
 }
 
 uint8_t SpotifyController::getVolume() const

@@ -12,7 +12,8 @@ class SpotifyCommandQueue
   static constexpr uint8_t queueSize = 20;
 
   SpotifyCommand commandQueue[queueSize]{};
-  uint8_t queueStartIndex;
+  uint8_t queueReadIndex;
+  uint8_t queueWriteIndex;
 
   public:
   SpotifyCommandQueue();

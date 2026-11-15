@@ -2,19 +2,34 @@
 
 #include "config.hpp"
 #include "secrets.hpp"
+#include "StateMachine.hpp"
 #include "input/InputHandler.hpp"
 #include "spotify/SpotifyCommandQueue.hpp"
 #include "spotify/SpotifyController.hpp"
 
-static InputHandler* inputHandler;
+static InputHandler* inputHandler = nullptr;
 static SpotifyCommandQueue* spotifyQueue = new SpotifyCommandQueue();
 static SpotifyController* spotifyController = nullptr;
+static StateMachine* stateMachine = nullptr;
 
-static void runSpotify(void* _)
+
+
+ void runSpotify(void* queue)
 {
-  spotifyController = new SpotifyController(spotifyQueue);
+  spotifyController = new SpotifyController(static_cast<SpotifyCommandQueue*>(queue));
   spotifyController->threadLoop();
 }
+
+void runStateMachine(void* queue)
+ {
+   inputHandler = new InputHandler();
+   stateMachine = new StateMachine(static_cast<SpotifyCommandQueue*>(queue));
+   while (true)
+   {
+     stateMachine->tick(inputHandler->getInput());
+     vTaskDelay(10/portTICK_PERIOD_MS);
+   }
+ }
 
 static void connect_to_wifi(){
   WiFi.begin(secrets::WiFiSecrets::SSID, secrets::WiFiSecrets::PASSWORD);
@@ -30,21 +45,16 @@ void setup() {
   Serial.begin(9600);
 
 
-  auto* buttonHandler =  new ButtonHandler(config::ButtonInputVals::NoPressValue, config::ButtonInputVals::LeftAnalogValue,
-        config::ButtonInputVals::MiddleAnalogValue, config::ButtonInputVals::RightAnalogValue,
-        config::ButtonInputVals::ShortPressThreshold, config::ButtonInputVals::LongPressThreshold);
-
-  inputHandler = new InputHandler(buttonHandler);
+   spotifyQueue = new SpotifyCommandQueue();
 
   connect_to_wifi();
 
-  xTaskCreatePinnedToCore(runSpotify, "spotify", 1000, nullptr, 5, nullptr,1);
-}
+  xTaskCreatePinnedToCore(&runSpotify, "spotify", 16384, spotifyQueue, 5, nullptr,1);
+
+ xTaskCreatePinnedToCore(&runStateMachine, "stateMachine", 16384, spotifyQueue, 5, nullptr,0);
+ }
 
 void loop() {
-  if (auto x = inputHandler->getInput(); x != InputHandler::None)
-  {
-    Serial.println(x);
-  }
+
 
 }

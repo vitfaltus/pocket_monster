@@ -1,12 +1,15 @@
 #include "spotify/SpotifyCommandQueue.hpp"
 
+#include <HardwareSerial.h>
+
 SpotifyCommandQueue::SpotifyCommandQueue()
 {
   for (auto& it : commandQueue)
   {
     it = Empty;
   }
-  queueStartIndex = 0;
+  queueReadIndex= 0;
+  queueWriteIndex= 0;
 }
 
 uint8_t SpotifyCommandQueue::getQueueSize()
@@ -16,14 +19,23 @@ uint8_t SpotifyCommandQueue::getQueueSize()
 
 SpotifyCommand SpotifyCommandQueue::getCommand()
 {
+  Serial.print("SpotifyCommandQueue::getCommand(), command: ");
   std::lock_guard lock(queueMutex);
-  if (queueStartIndex == 0) return commandQueue[queueSize-1];
-  return commandQueue[queueStartIndex-1];
+  const SpotifyCommand ret = commandQueue[queueReadIndex];
+  Serial.println(ret);
+  commandQueue[queueReadIndex] = Empty;
+  if (queueReadIndex == queueSize-1)
+    queueReadIndex = 0;
+  else
+    queueReadIndex++;
+  return ret;
 }
 
 void SpotifyCommandQueue::pushCommand(const SpotifyCommand command)
 {
+  Serial.print("SpotifyCommandQueue::pushCommand(), command: ");
+  Serial.println(command);
   std::lock_guard lock(queueMutex);
-  commandQueue[queueStartIndex] = command;
-  queueStartIndex += 1;
+  commandQueue[queueWriteIndex] = command;
+  queueWriteIndex = queueWriteIndex + 1 >= queueSize ? 0 : queueWriteIndex + 1;
 }

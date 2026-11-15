@@ -13,15 +13,15 @@ namespace config
     constexpr uint16_t MiddleAnalogValue = 1050;
     constexpr uint16_t RightAnalogValue = 1515;
 
-    constexpr uint16_t LongPressThreshold = 600;
-    constexpr uint16_t ShortPressThreshold = 100;
+    constexpr uint16_t LongPressThreshold = 50;
+    constexpr uint16_t ShortPressThreshold = 10;
   }
 
 
   namespace PinConfig
   {
-    constexpr int BUTTON_PANEL = GPIO_NUM_4;
-    constexpr int POTENTIOMETER = GPIO_NUM_2;
+    constexpr int BUTTON_PANEL = GPIO_NUM_33;
+    constexpr int POTENTIOMETER = GPIO_NUM_32;
   }
 
 }
