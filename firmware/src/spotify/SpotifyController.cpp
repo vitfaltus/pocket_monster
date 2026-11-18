@@ -47,7 +47,7 @@ void SpotifyController::threadLoop()
     default:
       ;
     }
-    vTaskDelay(50*portTICK_PERIOD_MS);
+    vTaskDelay(50/portTICK_PERIOD_MS);
 
   }
 
