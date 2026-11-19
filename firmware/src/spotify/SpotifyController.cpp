@@ -2,11 +2,13 @@
 
 #include "secrets.hpp"
 
-SpotifyController::SpotifyController(SpotifyCommandQueue* sQueue) : sp(secrets::SpotifySecrets::CLIENT_ID,
-                                                                       secrets::SpotifySecrets::CLIENT_SECRET,
-                                                                       secrets::SpotifySecrets::REFRESH_TOKEN)
+SpotifyController::SpotifyController(SpotifyCommandQueue* sQueue, SpotifySongInfo* sInfo) :
+  sp(secrets::SpotifySecrets::CLIENT_ID,
+     secrets::SpotifySecrets::CLIENT_SECRET,
+     secrets::SpotifySecrets::REFRESH_TOKEN), multiPurposeBuffer{}
 {
   queue = sQueue;
+  songInfo = sInfo;
   sp.begin();
   while (!sp.is_auth())
   {
@@ -20,6 +22,7 @@ void SpotifyController::threadLoop()
 
   while (true)
   {
+    updateSongInfo();
     switch (queue->getCommand())
     {
     case Empty:
@@ -92,4 +95,26 @@ void SpotifyController::setVolumeIncrement(const uint8_t increment)
 {
   if (increment > maxVolume) volumeIncrement = maxVolume;
   volumeIncrement = increment;
+}
+
+void SpotifyController::updateSongInfo()
+{
+
+  const String currentArtist = sp.current_artist_names();
+  const String currentTrackName = sp.current_track_name();
+
+  if (!currentArtist.isEmpty()) {
+    currentArtist.toCharArray(multiPurposeBuffer, config::BufferSize::stringBufferSize);
+    multiPurposeBuffer[config::BufferSize::stringBufferSize-1] = '\0';
+    songInfo->setArtistName(multiPurposeBuffer);
+  }
+  if (!currentTrackName.isEmpty())
+  {
+   currentTrackName.toCharArray(multiPurposeBuffer, config::BufferSize::stringBufferSize);
+    multiPurposeBuffer[config::BufferSize::stringBufferSize-1] = '\0';
+    songInfo->setSongName(multiPurposeBuffer);
+  }
+
+
+
 }

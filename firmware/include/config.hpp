@@ -24,6 +24,11 @@ namespace config
     constexpr int POTENTIOMETER = GPIO_NUM_32;
   }
 
+  namespace BufferSize
+  {
+    constexpr uint8_t stringBufferSize = 128;
+  }
+
 }
 
 

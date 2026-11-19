@@ -6,27 +6,34 @@
 #include "input/InputHandler.hpp"
 #include "spotify/SpotifyCommandQueue.hpp"
 #include "spotify/SpotifyController.hpp"
+#include "spotify/status/SpotifySongInfo.hpp"
+#include "view/ViewManager.hpp"
 
 static InputHandler* inputHandler = nullptr;
 static SpotifyCommandQueue* spotifyQueue = new SpotifyCommandQueue();
+static SpotifySongInfo* spotifySongInfo = new SpotifySongInfo();
+static ViewManager* viewManager;
 static SpotifyController* spotifyController = nullptr;
+
 static StateMachine* stateMachine = nullptr;
 
 
 
- void runSpotify(void* queue)
+ void runSpotify(void* _)
 {
-  spotifyController = new SpotifyController(static_cast<SpotifyCommandQueue*>(queue));
+  spotifyController = new SpotifyController(spotifyQueue, spotifySongInfo);
   spotifyController->threadLoop();
 }
 
-void runStateMachine(void* queue)
+void runStateMachine(void* _)
  {
    inputHandler = new InputHandler();
-   stateMachine = new StateMachine(static_cast<SpotifyCommandQueue*>(queue));
+   stateMachine = new StateMachine(spotifyQueue);
+   viewManager = new ViewManager(spotifySongInfo);
    while (true)
    {
      stateMachine->tick(inputHandler->getInput());
+     viewManager->updateView();
      vTaskDelay(10/portTICK_PERIOD_MS);
    }
  }
@@ -49,9 +56,9 @@ void setup() {
 
   connect_to_wifi();
 
-  xTaskCreatePinnedToCore(&runSpotify, "spotify", 16384, spotifyQueue, 5, nullptr,1);
+  xTaskCreatePinnedToCore(&runSpotify, "spotify", 16384, nullptr, 5, nullptr,1);
 
- xTaskCreatePinnedToCore(&runStateMachine, "stateMachine", 16384, spotifyQueue, 5, nullptr,0);
+ xTaskCreatePinnedToCore(&runStateMachine, "stateMachine", 16384, nullptr, 5, nullptr,0);
  }
 
 void loop() {
